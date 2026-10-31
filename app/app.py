@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import requests
 
 st.set_page_config(
     page_title="Mastitis Prediction",
@@ -18,14 +19,25 @@ from pathlib import Path
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "baseline_random_forest.pkl"
 
+MODEL_URL = (
+    "https://github.com/Darshantn24/"
+    "subclinical-mastitis-prediction/releases/download/"
+    "model-v1.0.0/baseline_random_forest.pkl"
+)
+
 try:
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    if not MODEL_PATH.exists():
+        response = requests.get(MODEL_URL, timeout=60)
+        response.raise_for_status()
+        MODEL_PATH.write_bytes(response.content)
+
     model = joblib.load(MODEL_PATH)
     st.success("Trained Random Forest model loaded successfully!")
-except FileNotFoundError:
-    st.error("Model file not found. Please check the models folder.")
-    st.stop()
+
 except Exception as e:
-    st.error(f"Unable to load the model: {e}")
+    st.error(f"Unable to load model: {e}")
     st.stop()
 
 

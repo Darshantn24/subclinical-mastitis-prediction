@@ -8,3 +8,4 @@ seaborn
 shap
 optuna
 pytest
+requests
